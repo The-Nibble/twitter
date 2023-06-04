@@ -3,6 +3,7 @@
 * {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
+
 html {
   scroll-behavior: smooth;
   height: 100vh;
@@ -10,6 +11,7 @@ html {
 
 .loading {
   display: flex;
+  text-align: center;
   place-content: center;
   height: 100%;
   align-items: center;
