@@ -20,6 +20,6 @@ const getLatestNibble = async () => {
 
 setTimeout(async () => {
  // const latestUrl = await getLatestNibble();
-  const latestUrl = "https://thenibble.substack.com/p/19";
+  const latestUrl = "https://thenibble.substack.com/p/20";
   window.location.href = latestUrl;
 }, 1000);
