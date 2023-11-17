@@ -32,3 +32,4 @@ jobs:
           branch: "update-nibble-link"
           delete-branch: true
           author: "Nibble Bot <nibblebot@nibbles.dev>"
+          reviewers: aashutoshrathi,thepushkarp
