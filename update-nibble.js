@@ -1,29 +1,51 @@
 const fs = require('fs');
 const path = require('path');
 
-const filePath = path.join(__dirname, 'index.js');
+const indexHtmlFile = path.join(__dirname, "index.html");
 
-// Read the contents of index.js
-fs.readFile(filePath, 'utf8', function (err, data) {
-    if (err) {
-        return console.log(err);
-    }
+fs.readFile(indexHtmlFile, "utf8", function (err, data) {
+  if (err) {
+    return console.log(err);
+  }
+  let updatedData = data;
 
-    // Regular expression to match the URL and extract the number
-    const regex = /https:\/\/thenibble\.substack\.com\/p\/(\d+)/;
-    const match = data.match(regex);
+  const blogUrlRegex = /https:\/\/thenibble\.substack\.com\/p\/(\d+)/;
+  const blogUrlMatch = data.match(blogUrlRegex);
+  if (blogUrlMatch?.[1]) {
+    const currentNumber = parseInt(blogUrlMatch[1]);
+    updatedData = data.replaceAll(
+      blogUrlMatch[0],
+      `https://thenibble.substack.com/p/${currentNumber + 1}`
+    );
+  }
 
-    if (match && match[1]) {
-        const currentNumber = parseInt(match[1]);
-        const updatedNumber = currentNumber + 1;
-        const updatedData = data.replace(
-            regex,
-            `https://thenibble.substack.com/p/${updatedNumber}`
-        );
+  const coverUrlRegex = /https:\/\/files\.nibbles\.dev\/covers\/(\d+)/;
+  const coverUrlMatch = data.match(coverUrlRegex);
+  console.log(coverUrlMatch);
+  if (coverUrlMatch?.[1]) {
+    const currentNumber = parseInt(coverUrlMatch[1]);
+    updatedData = updatedData.replaceAll(
+      coverUrlMatch[0],
+      `https://files.nibbles.dev/covers/${currentNumber + 1}`
+    );
+  }
 
-        // Write the updated contents back to index.js
-        fs.writeFile(filePath, updatedData, 'utf8', function (err) {
-            if (err) return console.log(err);
-        });
-    }
+  const blogTitleRegex = /Nibble #(\d+)/;
+  const titleMatch = data.match(blogTitleRegex);
+  console.log(titleMatch);
+
+  if (titleMatch?.[1]) {
+    const currentNumber = parseInt(titleMatch[1]);
+    updatedData = updatedData.replaceAll(
+      titleMatch[0],
+      `Nibble #${currentNumber + 1}`
+    );
+  }
+  if (updatedData === data) {
+    return;
+  }
+
+  fs.writeFile(indexHtmlFile, updatedData, "utf8", function (err) {
+    if (err) return console.log(err);
+  });
 });
