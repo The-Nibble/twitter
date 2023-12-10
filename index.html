@@ -10,10 +10,7 @@
     /> -->
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      content="https://latest.nibbles.dev"
-    />
+    <meta property="og:url" content="https://latest.nibbles.dev" />
     <meta property="og:title" content="Nibble #37" />
     <meta
       property="og:image"
@@ -21,10 +18,7 @@
     />
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta
-      property="twitter:url"
-      content="https://latest.nibbles.dev"
-    />
+    <meta property="twitter:url" content="https://latest.nibbles.dev" />
     <meta property="twitter:title" content="Nibble #37" />
     <meta
       name="twitter:image"
@@ -38,5 +32,10 @@
       <br />Taking you to the requested Nibble...
     </div>
   </body>
-  <script src="index.js"></script>
+  <script>
+    setTimeout(async () => {
+      const latestUrl = "https://thenibble.substack.com/p/37";
+      window.location.href = latestUrl;
+    }, 1000);
+  </script>
 </html>

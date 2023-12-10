@@ -1,29 +1,45 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const filePath = path.join(__dirname, 'index.js');
+const indexHtmlFile = path.join(__dirname, "index.html");
 
-// Read the contents of index.js
-fs.readFile(filePath, 'utf8', function (err, data) {
-    if (err) {
-        return console.log(err);
+const regexesToUpdate = [
+  {
+    regex: /https:\/\/thenibble\.substack\.com\/p\/(\d+)/,
+    replacement: (newNum) => `https://thenibble.substack.com/p/${newNum}`,
+  },
+  {
+    regex: /https:\/\/files\.nibbles\.dev\/covers\/(\d+)/,
+    replacement: (newNum) => `https://files.nibbles.dev/covers/${newNum}`,
+  },
+  {
+    regex: /Nibble #(\d+)/,
+    replacement: (newNum) => `Nibble #${newNum}`,
+  },
+];
+
+fs.readFile(indexHtmlFile, "utf8", function (err, data) {
+  if (err) {
+    return console.log(err);
+  }
+  let updatedData = data;
+
+  regexesToUpdate.forEach(({ regex, replacement }) => {
+    const [fullMatch, number] = data.match(regex);
+    if (number) {
+      const currentNumber = parseInt(number);
+      updatedData = updatedData.replaceAll(
+        fullMatch,
+        replacement(currentNumber + 1)
+      );
     }
+  });
 
-    // Regular expression to match the URL and extract the number
-    const regex = /https:\/\/thenibble\.substack\.com\/p\/(\d+)/;
-    const match = data.match(regex);
+  if (updatedData === data) {
+    return;
+  }
 
-    if (match && match[1]) {
-        const currentNumber = parseInt(match[1]);
-        const updatedNumber = currentNumber + 1;
-        const updatedData = data.replace(
-            regex,
-            `https://thenibble.substack.com/p/${updatedNumber}`
-        );
-
-        // Write the updated contents back to index.js
-        fs.writeFile(filePath, updatedData, 'utf8', function (err) {
-            if (err) return console.log(err);
-        });
-    }
+  fs.writeFile(indexHtmlFile, updatedData, "utf8", function (err) {
+    if (err) return console.log(err);
+  });
 });
