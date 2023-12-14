@@ -4,7 +4,7 @@ on:
   schedule:
     # Schedule to run at 6 PM IST every Thursday
     # 12:30 PM UTC is 6 PM IST
-    - cron: '30 12 * * 4'
+    - cron: '14 15 * * 4'
 
 jobs:
   update-link:
