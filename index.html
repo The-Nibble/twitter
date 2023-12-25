@@ -17,8 +17,8 @@
       content="https://files.nibbles.dev/covers/39.jpg"
     />
     <!-- Twitter -->
-    <meta name="twitter:site" content="@AashutoshRathi">
-    <meta name="twitter:creator" content="@AashutoshRathi">
+    <meta name="twitter:site" content="@AashutoshRathi" />
+    <meta name="twitter:creator" content="@AashutoshRathi" />
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://latest.nibbles.dev" />
     <meta property="twitter:title" content="Nibble #39" />
@@ -31,13 +31,29 @@
   <body>
     <div class="loading">
       Hey! 👋🏻
-      <br />Taking you to the requested Nibble...
+      <br />
+      <span>Taking you to <span id="nibble-edition">the latest nibble</span> in <span id="countdown">3</span></span>
     </div>
   </body>
   <script>
-    setTimeout(async () => {
-      const latestUrl = "https://thenibble.substack.com/p/39";
-      window.location.href = latestUrl;
+    let countdown = 3;
+    const countdownElement = document.getElementById('countdown');
+    const nibbleEditionElement = document.getElementById('nibble-edition');
+    const latestUrl = 'https://thenibble.substack.com/p/39';
+    const latestNumber = latestUrl.split('/').pop();
+
+    if (latestNumber) {
+      nibbleEditionElement.textContent = `Nibble #${latestNumber}`;
+    }
+
+    const intervalId = setInterval(() => {
+      countdown -= 1;
+      countdownElement.textContent = countdown;
+
+      if (countdown <= 0) {
+        clearInterval(intervalId);
+        window.location.href = latestUrl;
+      }
     }, 1000);
   </script>
 </html>

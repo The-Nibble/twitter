@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const indexHtmlFile = path.join(__dirname, "index.html");
+const indexHtmlFile = path.join(__dirname, 'index.html');
 
 const regexesToUpdate = [
   {
@@ -18,7 +18,7 @@ const regexesToUpdate = [
   },
 ];
 
-fs.readFile(indexHtmlFile, "utf8", function (err, data) {
+fs.readFile(indexHtmlFile, 'utf8', function (err, data) {
   if (err) {
     return console.log(err);
   }
@@ -30,7 +30,7 @@ fs.readFile(indexHtmlFile, "utf8", function (err, data) {
       const currentNumber = parseInt(number);
       updatedData = updatedData.replaceAll(
         fullMatch,
-        replacement(currentNumber + 1)
+        replacement(currentNumber + 1),
       );
     }
   });
@@ -39,7 +39,7 @@ fs.readFile(indexHtmlFile, "utf8", function (err, data) {
     return;
   }
 
-  fs.writeFile(indexHtmlFile, updatedData, "utf8", function (err) {
+  fs.writeFile(indexHtmlFile, updatedData, 'utf8', function (err) {
     if (err) return console.log(err);
   });
 });

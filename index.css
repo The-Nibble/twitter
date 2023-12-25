@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap');
 
 * {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 html {
@@ -12,6 +12,7 @@ html {
 .loading {
   display: flex;
   text-align: center;
+  flex-direction: column;
   place-content: center;
   height: 100%;
   align-items: center;
