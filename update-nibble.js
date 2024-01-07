@@ -14,8 +14,8 @@ const regexesToUpdate = [
     replacement: (newNum) => `https://files.nibbles.dev/covers/${newNum}`,
   },
   {
-    regex: /https:\/\/files\.nibbles\.dev\/wallapapers\/(\d+)/,
-    replacement: (newNum) => `https://files.nibbles.dev/wallapapers/${newNum}`,
+    regex: /https:\/\/files\.nibbles\.dev\/wallpapers\/(\d+)/,
+    replacement: (newNum) => `https://files.nibbles.dev/wallpapers/${newNum}`,
   },
   {
     regex: /Nibble #(\d+)/,
@@ -33,7 +33,11 @@ for (const file of files) {
     let updatedData = data;
 
     regexesToUpdate.forEach(({ regex, replacement }) => {
-      const [fullMatch, number] = data.match(regex);
+      const res = data.match(regex);
+      if (!res) {
+        return null;
+      }
+      const [fullMatch, number] = res;
       if (number) {
         const currentNumber = parseInt(number);
         updatedData = updatedData.replaceAll(
