@@ -10,6 +10,10 @@ const regexesToUpdate = [
     replacement: (newNum) => `https://thenibble.substack.com/p/${newNum}`,
   },
   {
+    regex: /https:\/\/open\.substack\.com\/pub\/thenibble\/p\/(\d+)/,
+    replacement: (newNum) => `https://open.substack.com/pub/thenibble/p/${newNum}`,
+  },
+  {
     regex: /https:\/\/files\.nibbles\.dev\/covers\/(\d+)/,
     replacement: (newNum) => `https://files.nibbles.dev/covers/${newNum}`,
   },
@@ -56,4 +60,3 @@ for (const file of files) {
     });
   });
 }
-
