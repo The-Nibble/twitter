@@ -5,6 +5,7 @@ on:
     # Schedule to run at 6 PM IST every Thursday
     # 12:30 PM UTC is 6 PM IST
     - cron: '14 15 * * 4'
+  workflow_dispatch:
 
 jobs:
   update-link:
