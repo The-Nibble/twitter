@@ -14,6 +14,10 @@ const regexesToUpdate = [
     replacement: (newNum) => `https://open.substack.com/pub/thenibble/p/${newNum}`,
   },
   {
+    regex: /https:\/\/nibbles\.dev\/p\/(\d+)/,
+    replacement: (newNum) => `https://nibbles.dev/p/${newNum}`,
+  },
+  {
     regex: /https:\/\/files\.nibbles\.dev\/covers\/(\d+)/,
     replacement: (newNum) => `https://files.nibbles.dev/covers/${newNum}`,
   },
