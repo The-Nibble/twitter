@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Nibble #69</title>
+    <title>The Nibble</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="title" content="Nibble #69" />
+    <meta name="title" content="The Nibble" />
     <meta
       name="description"
       content="Nibble is a Tech Newsletter with quick bits to stay updated on tech, life and memes"
@@ -18,20 +18,28 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://latest.nibbles.dev" />
-    <meta property="og:title" content="Nibble #69" />
+    <meta property="og:title" content="The Nibble" />
     <meta
       property="og:image"
-      content="https://files.nibbles.dev/covers/69.jpg"
+      content="https://files.nibbles.dev/logo/logo.png"
+    />
+    <meta
+      property="og:description"
+      content="Nibble is a Tech Newsletter with quick bits to stay updated on tech, life and memes"
     />
     <!-- Twitter -->
     <meta name="twitter:site" content="@AashutoshRathi" />
     <meta name="twitter:creator" content="@AashutoshRathi" />
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://latest.nibbles.dev" />
-    <meta property="twitter:title" content="Nibble #69" />
+    <meta property="twitter:title" content="The Nibble" />
     <meta
       name="twitter:image"
-      content="https://files.nibbles.dev/covers/69.jpg"
+      content="https://files.nibbles.dev/logo/logo.png"
+    />
+    <meta
+      name="twitter:description"
+      content="Nibble is a Tech Newsletter with quick bits to stay updated on tech, life and memes"
     />
     <link rel="stylesheet" type="text/css" href="index.css" />
   </head>
@@ -54,7 +62,7 @@
       const link = item.getElementsByTagName('link')[0].textContent;
       const title = item.getElementsByTagName('title')[0].textContent;
       const latestNumber = title.match(/#(\d+)/)[1];
-
+      console.log({ link, latestNumber });
       return { link, latestNumber };
     }
 
