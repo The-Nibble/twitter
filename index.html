@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Nibble #69</title>
+    <title>The Nibble</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="title" content="Nibble #69" />
+    <meta name="title" content="The Nibble" />
     <meta
       name="description"
       content="Nibble is a Tech Newsletter with quick bits to stay updated on tech, life and memes"
@@ -18,20 +18,28 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://latest.nibbles.dev" />
-    <meta property="og:title" content="Nibble #69" />
+    <meta property="og:title" content="The Nibble" />
     <meta
       property="og:image"
-      content="https://files.nibbles.dev/covers/69.jpg"
+      content="https://files.nibbles.dev/logo/logo.png"
+    />
+    <meta
+      property="og:description"
+      content="Nibble is a Tech Newsletter with quick bits to stay updated on tech, life and memes"
     />
     <!-- Twitter -->
     <meta name="twitter:site" content="@AashutoshRathi" />
     <meta name="twitter:creator" content="@AashutoshRathi" />
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://latest.nibbles.dev" />
-    <meta property="twitter:title" content="Nibble #69" />
+    <meta property="twitter:title" content="The Nibble" />
     <meta
       name="twitter:image"
-      content="https://files.nibbles.dev/covers/69.jpg"
+      content="https://files.nibbles.dev/logo/logo.png"
+    />
+    <meta
+      name="twitter:description"
+      content="Nibble is a Tech Newsletter with quick bits to stay updated on tech, life and memes"
     />
     <link rel="stylesheet" type="text/css" href="index.css" />
   </head>
@@ -45,24 +53,59 @@
     </div>
   </body>
   <script>
-    let countdown = 3;
-    const countdownElement = document.getElementById('countdown');
-    const nibbleEditionElement = document.getElementById('nibble-edition');
-    const latestUrl = 'https://nibbles.dev/p/69';
-    const latestNumber = latestUrl.split('/').pop();
+    async function fetchLatestNibble() {
+      const rss2jsonEndpoint = 'https://api.rss2json.com/v1/api.json?rss_url=';
+      const feedUrl = encodeURIComponent('https://www.nibbles.dev/feed');
+      const apiUrl = `${rss2jsonEndpoint}${feedUrl}`;
 
-    if (latestNumber) {
-      nibbleEditionElement.textContent = `Nibble #${latestNumber}`;
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      if (data.status !== 'ok' || !data.items || data.items.length === 0) {
+        throw new Error('Failed to fetch RSS feed or no items found');
+      }
+
+      const latestItem = data.items[0];
+      const link = latestItem.link;
+      const title = latestItem.title;
+      const match = title.match(/#(\d+)/);
+      if (!match) {
+        throw new Error('Unable to extract nibble number from title');
+      }
+      const latestNumber = match[1];
+
+      return { link, latestNumber };
     }
 
-    const intervalId = setInterval(() => {
-      countdown -= 1;
-      countdownElement.textContent = countdown;
+    async function updatePage() {
+      const nibbleEditionElement = document.getElementById('nibble-edition');
+      const countdownElement = document.getElementById('countdown');
+      let link = 'https://www.nibbles.dev';  // Default link
 
-      if (countdown <= 0) {
-        clearInterval(intervalId);
-        window.location.href = latestUrl;
+      try {
+        const { link: fetchedLink, latestNumber } = await fetchLatestNibble();
+        link = fetchedLink;  // Update link if fetch successful
+        nibbleEditionElement.textContent = `Nibble #${latestNumber}`;
+      } catch (error) {
+        console.error('Error:', error);
+        nibbleEditionElement.textContent = 'the latest nibble';
       }
-    }, 500);
+
+      let countdown = 3;
+      const intervalId = setInterval(() => {
+        countdown -= 1;
+        countdownElement.textContent = countdown;
+
+        if (countdown <= 0) {
+          clearInterval(intervalId);
+          window.location.href = link;
+        }
+      }, 500);
+    }
+
+    updatePage();
   </script>
 </html>
