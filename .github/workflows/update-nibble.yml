@@ -2,8 +2,6 @@ name: Update Nibble Link
 
 on:
   schedule:
-    # Schedule to run at 6 PM IST every Thursday
-    # 12:30 PM UTC is 6 PM IST
     - cron: '14 15 * * 4'
   workflow_dispatch:
 
@@ -29,7 +27,22 @@ jobs:
           token: ${{ secrets.PAT }}
           commit-message: "Increment Nibble link"
           title: "Weekly Automated Nibble Link Update"
-          body: "This is an automated pull request to increment the Nibble link."
+          body: |
+            This is an automated pull request to increment the Nibble link.
+
+            Checklist:
+            - [ ] AI
+            - [ ] 0x
+            - [ ] Dev & Design
+            - [ ] WBUTA
+            - [ ] TIL
+            - [ ] WWHBT
+            - [ ] Builder's Nest
+            - [ ] Meme
+            - [ ] Off Topic
+            - [ ] Meta
+            - [ ] Wallpaper
+            - [ ] Standup
           branch: "update-nibble-link"
           delete-branch: true
           author: "Nibble Devs <git@nibbles.dev>"
