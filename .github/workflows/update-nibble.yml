@@ -42,7 +42,10 @@ jobs:
             - [ ] Off Topic
             - [ ] Meta
             - [ ] Wallpaper
+            - [ ] Cover Image
             - [ ] Standup
+              - [ ] A
+              - [ ] P
           branch: "update-nibble-link"
           delete-branch: true
           author: "Nibble Devs <git@nibbles.dev>"
