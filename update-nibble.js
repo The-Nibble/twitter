@@ -1,66 +1,86 @@
 const fs = require('fs');
-const path = require('path');
+const fetch = require('node-fetch');
+const { execSync } = require('child_process');
 
-const indexHtmlFile = path.join(__dirname, 'index.html');
-const wallpaperHtmlFile = path.join(__dirname, 'wallpaper.html');
+const RSS2JSON_ENDPOINT = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const FEED_URL = encodeURIComponent('https://www.nibbles.dev/feed');
+const API_URL = `${RSS2JSON_ENDPOINT}${FEED_URL}`;
 
-const regexesToUpdate = [
-  {
-    regex: /https:\/\/thenibble\.substack\.com\/p\/(\d+)/,
-    replacement: (newNum) => `https://thenibble.substack.com/p/${newNum}`,
-  },
-  {
-    regex: /https:\/\/open\.substack\.com\/pub\/thenibble\/p\/(\d+)/,
-    replacement: (newNum) => `https://open.substack.com/pub/thenibble/p/${newNum}`,
-  },
-  {
-    regex: /https:\/\/nibbles\.dev\/p\/(\d+)/,
-    replacement: (newNum) => `https://nibbles.dev/p/${newNum}`,
-  },
-  {
-    regex: /https:\/\/files\.nibbles\.dev\/covers\/(\d+)/,
-    replacement: (newNum) => `https://files.nibbles.dev/covers/${newNum}`,
-  },
-  {
-    regex: /https:\/\/files\.nibbles\.dev\/wallpapers\/(\d+)/,
-    replacement: (newNum) => `https://files.nibbles.dev/wallpapers/${newNum}`,
-  },
-  {
-    regex: /Nibble #(\d+)/,
-    replacement: (newNum) => `Nibble #${newNum}`,
-  },
-];
+// Files to update
+const filesToUpdate = ['index.html', 'wallpaper.html'];
 
-const files = [indexHtmlFile, wallpaperHtmlFile];
+// Fetch the latest nibble data
+async function fetchLatestNibble() {
+  const response = await fetch(API_URL);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  const data = await response.json();
 
-for (const file of files) {
-  fs.readFile(file, 'utf8', function (err, data) {
-    if (err) {
-      return console.log(err);
-    }
-    let updatedData = data;
+  if (data.status !== 'ok' || !data.items || data.items.length === 0) {
+    throw new Error('Failed to fetch RSS feed or no items found');
+  }
 
-    regexesToUpdate.forEach(({ regex, replacement }) => {
-      const res = data.match(regex);
-      if (!res) {
-        return null;
-      }
-      const [fullMatch, number] = res;
-      if (number) {
-        const currentNumber = parseInt(number);
-        updatedData = updatedData.replaceAll(
-          fullMatch,
-          replacement(currentNumber + 1),
-        );
-      }
-    });
+  const latestItem = data.items[0];
+  const link = latestItem.link;
+  const title = latestItem.title;
+  const match = title.match(/#(\d+)/);
+  if (!match) {
+    throw new Error('Unable to extract nibble number from title');
+  }
+  const latestNumber = match[1];
 
-    if (updatedData === data) {
-      return;
-    }
-
-    fs.writeFile(file, updatedData, 'utf8', function (err) {
-      if (err) return console.log(err);
-    });
-  });
+  return { link, latestNumber };
 }
+
+// Update files with the new link and nibble number
+function updateFiles(newLink, latestNumber) {
+  filesToUpdate.forEach((file) => {
+    let content = fs.readFileSync(file, 'utf-8');
+    const updatedContent = content
+      .replace(/https:\/\/www\.nibbles\.dev\/[^'"]+/, newLink)
+      .replace(/Nibble #\d+/, `Nibble #${latestNumber}`);
+    fs.writeFileSync(file, updatedContent, 'utf-8');
+  });
+
+  // Update the current link and nibble number
+  fs.writeFileSync('current_link.txt', `${newLink}|${latestNumber}`, 'utf-8');
+}
+
+function getCurrentData() {
+  // Assuming the current link and nibble number are stored in 'current_link.txt' separated by a pipe
+  if (fs.existsSync('current_link.txt')) {
+    const data = fs.readFileSync('current_link.txt', 'utf-8').trim();
+    const [link, number] = data.split('|');
+    return { link, number };
+  }
+  return { link: '', number: '' };
+}
+
+// Commit and push changes if any
+function commitChanges() {
+  execSync('git config user.name "Nibble Devs"');
+  execSync('git config user.email "git@nibbles.dev"');
+  execSync('git add .');
+  execSync('git commit -m "Automated update of Nibble link"');
+  execSync('git push');
+}
+
+(async () => {
+  try {
+    const { link: fetchedLink, latestNumber } = await fetchLatestNibble();
+    const { link: currentLink, number: currentNumber } = getCurrentData();
+
+    if (fetchedLink !== currentLink || latestNumber !== currentNumber) {
+      console.log('Link or Nibble number has changed. Updating files...');
+      updateFiles(fetchedLink, latestNumber);
+      commitChanges();
+      console.log('Files updated and changes pushed.');
+    } else {
+      console.log('No changes detected. No action taken.');
+    }
+  } catch (error) {
+    console.error('Error updating Nibble link and number:', error);
+    process.exit(1);
+  }
+})();
