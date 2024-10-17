@@ -53,59 +53,24 @@
     </div>
   </body>
   <script>
-    async function fetchLatestNibble() {
-      const rss2jsonEndpoint = 'https://api.rss2json.com/v1/api.json?rss_url=';
-      const feedUrl = encodeURIComponent('https://www.nibbles.dev/feed');
-      const apiUrl = `${rss2jsonEndpoint}${feedUrl}`;
+    let countdown = 3;
+    const countdownElement = document.getElementById('countdown');
+    const nibbleEditionElement = document.getElementById('nibble-edition');
+    const latestUrl = 'https://nibbles.dev/p/81';
+    const latestNumber = latestUrl.split('/').pop();
 
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-
-      if (data.status !== 'ok' || !data.items || data.items.length === 0) {
-        throw new Error('Failed to fetch RSS feed or no items found');
-      }
-
-      const latestItem = data.items[0];
-      const link = latestItem.link;
-      const title = latestItem.title;
-      const match = title.match(/#(\d+)/);
-      if (!match) {
-        throw new Error('Unable to extract nibble number from title');
-      }
-      const latestNumber = match[1];
-
-      return { link, latestNumber };
+    if (latestNumber) {
+      nibbleEditionElement.textContent = `Nibble #${latestNumber}`;
     }
 
-    async function updatePage() {
-      const nibbleEditionElement = document.getElementById('nibble-edition');
-      const countdownElement = document.getElementById('countdown');
-      let link = 'https://www.nibbles.dev';  // Default link
+    const intervalId = setInterval(() => {
+      countdown -= 1;
+      countdownElement.textContent = countdown;
 
-      try {
-        const { link: fetchedLink, latestNumber } = await fetchLatestNibble();
-        link = fetchedLink;  // Update link if fetch successful
-        nibbleEditionElement.textContent = `Nibble #${latestNumber}`;
-      } catch (error) {
-        console.error('Error:', error);
-        nibbleEditionElement.textContent = 'the latest nibble';
+      if (countdown <= 0) {
+        clearInterval(intervalId);
+        window.location.href = latestUrl;
       }
-
-      let countdown = 3;
-      const intervalId = setInterval(() => {
-        countdown -= 1;
-        countdownElement.textContent = countdown;
-
-        if (countdown <= 0) {
-          clearInterval(intervalId);
-          window.location.href = link;
-        }
-      }, 500);
-    }
-
-    updatePage();
+    }, 500);
   </script>
 </html>
