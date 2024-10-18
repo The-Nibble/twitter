@@ -1,6 +1,5 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
-import { execSync } from 'child_process';
 
 const RSS2JSON_ENDPOINT = 'https://api.rss2json.com/v1/api.json?rss_url=';
 const FEED_URL = encodeURIComponent('https://www.nibbles.dev/feed');
@@ -12,28 +11,28 @@ const filesToUpdate = ['index.html', 'wallpaper.html'];
 // Regexes to update
 const regexesToUpdate = [
   {
-    regex: /https:\/\/thenibble\.substack\.com\/p\/(\d+)/,
+    regex: /https:\/\/thenibble\.substack\.com\/p\/(\d+)\/?/g,
     replacement: (newNum) => `https://thenibble.substack.com/p/${newNum}`,
   },
   {
-    regex: /https:\/\/open\.substack\.com\/pub\/thenibble\/p\/(\d+)/,
+    regex: /https:\/\/open\.substack\.com\/pub\/thenibble\/p\/(\d+)\/?/g,
     replacement: (newNum) =>
       `https://open.substack.com/pub/thenibble/p/${newNum}`,
   },
   {
-    regex: /https:\/\/nibbles\.dev\/p\/(\d+)/,
+    regex: /https:\/\/nibbles\.dev\/p\/(\d+)\/?/g,
     replacement: (newNum) => `https://nibbles.dev/p/${newNum}`,
   },
   {
-    regex: /https:\/\/files\.nibbles\.dev\/covers\/(\d+)/,
+    regex: /https:\/\/files\.nibbles\.dev\/covers\/(\d+)\/?/g,
     replacement: (newNum) => `https://files.nibbles.dev/covers/${newNum}`,
   },
   {
-    regex: /https:\/\/files\.nibbles\.dev\/wallpapers\/(\d+)/,
+    regex: /https:\/\/files\.nibbles\.dev\/wallpapers\/(\d+)\/?/g,
     replacement: (newNum) => `https://files.nibbles.dev/wallpapers/${newNum}`,
   },
   {
-    regex: /Nibble #(\d+)/,
+    regex: /Nibble #(\d+)/g,
     replacement: (newNum) => `Nibble #${newNum}`,
   },
 ];
@@ -70,20 +69,23 @@ function updateFiles(newLink, latestNumber) {
       let updatedContent = data;
 
       regexesToUpdate.forEach(({ regex, replacement }) => {
-        const res = data.match(regex);
-        if (!res) {
-          return;
-        }
-        const [match, oldNumber] = res;
-        if (!oldNumber || oldNumber === latestNumber) {
-          return;
-        }
         updatedContent = updatedContent.replaceAll(
           regex,
-          replacement(latestNumber),
+          (match, oldNumber) => {
+            if (oldNumber && oldNumber !== latestNumber) {
+              return replacement(latestNumber);
+            }
+            return match;
+          },
         );
       });
-      fs.writeFileSync(file, updatedContent, 'utf-8');
+
+      if (data !== updatedContent) {
+        fs.writeFileSync(file, updatedContent, 'utf-8');
+        console.log(`Updated ${file}`);
+      } else {
+        console.log(`No changes needed in ${file}`);
+      }
     } catch (error) {
       console.error(`Error updating file ${file}:`, error);
     }
@@ -99,7 +101,6 @@ function updateFiles(newLink, latestNumber) {
 
 function getCurrentData() {
   try {
-    // Assuming the current link and nibble number are stored in 'current_link.txt' separated by a pipe
     if (fs.existsSync('current_link.txt')) {
       const data = fs.readFileSync('current_link.txt', 'utf-8').trim();
       const [link, number] = data.split('|');
@@ -110,15 +111,6 @@ function getCurrentData() {
     console.error('Error reading current_link.txt:', error);
     return { link: '', number: '' };
   }
-}
-
-// Commit and push changes if any
-function commitChanges(latestNumber) {
-  execSync('git config user.name "Nibble Devs"');
-  execSync('git config user.email "git@nibbles.dev"');
-  execSync('git add .');
-  execSync(`git commit -m "Automated update of Nibble ${latestNumber}"`);
-  execSync('git push');
 }
 
 (async () => {
@@ -133,8 +125,7 @@ function commitChanges(latestNumber) {
     if (fetchedLink !== currentLink || latestNumber !== currentNumber) {
       console.log('Link or Nibble number has changed. Updating files...');
       updateFiles(fetchedLink, latestNumber);
-      commitChanges(latestNumber);
-      console.log('Files updated and changes pushed.');
+      console.log('Files updated.');
     } else {
       console.log('No changes detected. No action taken.');
     }
