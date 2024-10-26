@@ -20,15 +20,26 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Update Nibble Link
         run: node updateNibble.js
+
+      - name: Get latest Nibble number
+        id: read-nibble-link
+        run: echo "::set-output name=number::$(cat current_link.txt | cut -d'|' -f2)"
 
       - name: Push changes
         run: |
           git config user.name "Nibble Devs"
           git config user.email "git@nibbles.dev"
-          git add .
-          git commit -m "Automated update of Nibble ${{ steps.update-nibble-link.outputs.latestNumber }}"
-          git push
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m "Automated update of Nibble ${{ steps.read-nibble-link.outputs.latestNumber }}"
+            git push
+          else
+            echo "No changes to commit"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
