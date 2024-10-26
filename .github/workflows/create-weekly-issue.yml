@@ -23,7 +23,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const issueNumber = ${{ steps.read_link.outputs.number }};
+            let issueNumber = ${{ steps.read_link.outputs.number }};
+            issueNumber++;
             const issue = {
               title: `Nibble #${issueNumber} Content Checklist`,
               body: `This is an automated issue to track weekly tasks for Nibble #${issueNumber}.
@@ -50,5 +51,6 @@ jobs:
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
+              assignees: ['aashutoshrathi', 'thepushkarp'],
               ...issue
             });
