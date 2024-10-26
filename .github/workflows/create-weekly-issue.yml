@@ -2,7 +2,7 @@ name: Create Weekly Issue
 
 on:
   schedule:
-    - cron: '14 9 * * 4'  # Runs at 3:14 PM IST on Thursday
+    - cron: '14 9 * * 6'  # Runs at 3:14 PM IST on Saturday
   workflow_dispatch:
 
 jobs:
