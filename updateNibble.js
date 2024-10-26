@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 const RSS2JSON_ENDPOINT = 'https://api.rss2json.com/v1/api.json?rss_url=';
 const FEED_URL = encodeURIComponent('https://www.nibbles.dev/feed');
 const API_URL = `${RSS2JSON_ENDPOINT}${FEED_URL}`;
+const DELIMITER = '|';
 
 // Files to update
 const filesToUpdate = ['index.html', 'wallpaper.html'];
@@ -39,19 +40,23 @@ const regexesToUpdate = [
 
 // Fetch the latest nibble data
 async function fetchLatestNibble() {
-  const response = await fetch(API_URL);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+  const res = await fetch(API_URL);
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
   }
-  const data = await response.json();
+  const data = await res.json();
+  const { status, items } = data;
 
-  if (data.status !== 'ok' || !data.items || data.items.length === 0) {
+  if (status !== 'ok' || !items?.length) {
     throw new Error('Failed to fetch RSS feed or no items found');
   }
 
-  const latestItem = data.items[0];
-  const link = latestItem.link;
-  const title = latestItem.title;
+  const [latestItem] = items;
+  if (!latestItem) {
+    throw new Error('No latest item found in RSS feed');
+  }
+
+  const { link, title } = latestItem;
   const match = title.match(/#(\d+)/);
   if (!match) {
     throw new Error('Unable to extract nibble number from title');
@@ -65,7 +70,7 @@ async function fetchLatestNibble() {
 function updateFiles(newLink, latestNumber) {
   filesToUpdate.forEach((file) => {
     try {
-      let data = fs.readFileSync(file, 'utf-8');
+      const data = fs.readFileSync(file, 'utf-8');
       let updatedContent = data;
 
       regexesToUpdate.forEach(({ regex, replacement }) => {
@@ -93,7 +98,11 @@ function updateFiles(newLink, latestNumber) {
 
   // Update the current link and nibble number
   try {
-    fs.writeFileSync('current_link.txt', `${newLink}|${latestNumber}`, 'utf-8');
+    fs.writeFileSync(
+      'current_link.txt',
+      [newLink, latestNumber].join(DELIMITER),
+      'utf-8',
+    );
   } catch (error) {
     console.error('Error updating current_link.txt:', error);
   }
@@ -103,7 +112,7 @@ function getCurrentData() {
   try {
     if (fs.existsSync('current_link.txt')) {
       const data = fs.readFileSync('current_link.txt', 'utf-8').trim();
-      const [link, number] = data.split('|');
+      const [link, number] = data.split(DELIMITER);
       return { link, number };
     }
     return { link: '', number: '' };
