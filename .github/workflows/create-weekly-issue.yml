@@ -29,7 +29,7 @@ jobs:
               title: `Nibble #${issueNumber} Content Checklist`,
               body: `This is an automated issue to track weekly tasks for Nibble #${issueNumber}.
 
-              Checklist:
+              Primary Content Checklist:
               - [ ] AI
               - [ ] 0x
               - [ ] Dev & Design
@@ -38,13 +38,19 @@ jobs:
               - [ ] WWHBT
               - [ ] Builder's Nest
               - [ ] Meme
-              - [ ] Off Topic
-              - [ ] Meta
+              - [ ] Quote Of The Week
               - [ ] Wallpaper
-              - [ ] Cover Image
+              - [ ] Off Topic
               - [ ] Standup
                 - [ ] A
-                - [ ] P`,
+                - [ ] P
+              - [ ] Meta
+
+              Meta Content Checklist:
+              - [ ] Cover Image
+              - [ ] NotebookLM Podcast
+              - [ ] [latest.nibbles.dev](https://latest.nibbles.dev/) is updated?
+              - [ ] Social Media Post`,
               labels: ['weekly-checklist']
             };
 
