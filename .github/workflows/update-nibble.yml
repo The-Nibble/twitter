@@ -28,7 +28,7 @@ jobs:
 
       - name: Get latest Nibble number
         id: read-nibble-link
-        run: echo "::set-output name=number::$(cat current_link.txt | cut -d'|' -f2)"
+        run: echo "number=$(cat current_link.txt | cut -d'|' -f2)" >> $GITHUB_OUTPUT
 
       - name: Push changes
         run: |
@@ -36,7 +36,7 @@ jobs:
           git config user.email "git@nibbles.dev"
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
-            git commit -m "Automated update of Nibble ${{ steps.read-nibble-link.outputs.latestNumber }}"
+            git commit -m "Automated update of Nibble ${{ steps.read-nibble-link.outputs.number }}"
             git push
           else
             echo "No changes to commit"
