@@ -2,7 +2,7 @@ name: Update Nibble Link
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # Runs every 3 hours
+    - cron: '0 */3 * * 0,1,6'  # Runs every 3 hours near publishing days
   workflow_dispatch:
 
 jobs:
