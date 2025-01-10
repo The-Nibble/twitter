@@ -1,9 +1,10 @@
 name: Update Nibble Link
 
 on:
+  issues:
+    types: [closed]
   schedule:
-    - cron: '0 */3 * * 0,1,6'  # Runs every 3 hours near publishing days
-  workflow_dispatch:
+    - cron: '0 */3 * * 0,1,6'
 
 jobs:
   update-link:
