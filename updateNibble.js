@@ -2,7 +2,7 @@ import fs from 'fs';
 import fetch from 'node-fetch';
 
 const RSS2JSON_ENDPOINT = 'https://api.rss2json.com/v1/api.json?rss_url=';
-const FEED_URL = encodeURIComponent('https://www.nibbles.dev/feed');
+const FEED_URL = encodeURIComponent('https://www.nibbles.dev/feed.xml');
 
 const timestamp = Date.now();
 const API_URL = `${RSS2JSON_ENDPOINT}${FEED_URL}?t=${timestamp}`;
