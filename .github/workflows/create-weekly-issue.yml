@@ -34,10 +34,9 @@ jobs:
               - [ ] 0x
               - [ ] Dev & Design
               - [ ] WBUTA
-              - [ ] WWHBT
               - [ ] Builder's Nest
-              - [ ] Meme
-              - [ ] Quote Of The Week
+              - [ ] Meme Of The Week
+              - [ ] Wisdom Bits
               - [ ] Wallpaper
               - [ ] Off Topic
               - [ ] Standup
