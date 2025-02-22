@@ -1,11 +1,8 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
+import { parseStringPromise } from 'xml2js';
 
-const RSS2JSON_ENDPOINT = 'https://api.rss2json.com/v1/api.json?rss_url=';
-const timestamp = Date.now();
-const FEED_URL = encodeURIComponent(`https://www.nibbles.dev/feed.xml?t=${timestamp}`);
-
-const API_URL = `${RSS2JSON_ENDPOINT}${FEED_URL}`;
+const FEED_URL = 'https://www.nibbles.dev/feed.xml';
 const DELIMITER = '|';
 
 // Files to update
@@ -42,30 +39,31 @@ const regexesToUpdate = [
 
 // Fetch the latest nibble data
 async function fetchLatestNibble() {
-  const res = await fetch(API_URL);
+  const res = await fetch(FEED_URL, {
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
+  });
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);
   }
-  const data = await res.json();
-  const { status, items } = data;
+  const xmlData = await res.text();
+  const jsonData = await parseStringPromise(xmlData, { mergeAttrs: true });
+  const items = jsonData.rss.channel[0].item;
 
-  if (status !== 'ok' || !items?.length) {
-    throw new Error('Failed to fetch RSS feed or no items found');
+  if (!items?.length) {
+    throw new Error('No items found in RSS feed');
   }
 
   const [latestItem] = items;
-  if (!latestItem) {
-    throw new Error('No latest item found in RSS feed');
-  }
-
   const { link, title } = latestItem;
-  const match = title.match(/#(\d+)/);
+  const match = title[0].match(/#(\d+)/);
   if (!match) {
     throw new Error('Unable to extract nibble number from title');
   }
   const latestNumber = match[1];
 
-  return { link, latestNumber };
+  return { link: link[0], latestNumber };
 }
 
 // Update files with the new link and nibble number
@@ -76,15 +74,12 @@ function updateFiles(newLink, latestNumber) {
       let updatedContent = data;
 
       regexesToUpdate.forEach(({ regex, replacement }) => {
-        updatedContent = updatedContent.replaceAll(
-          regex,
-          (match, oldNumber) => {
-            if (oldNumber && oldNumber !== latestNumber) {
-              return replacement(latestNumber);
-            }
-            return match;
-          },
-        );
+        updatedContent = updatedContent.replace(regex, (match, oldNumber) => {
+          if (oldNumber && oldNumber !== latestNumber) {
+            return replacement(latestNumber);
+          }
+          return match;
+        });
       });
 
       if (data !== updatedContent) {
@@ -133,6 +128,8 @@ function getCurrentData() {
       throw new Error('Invalid fetched link or nibble number');
     }
 
+    console.log('Old Link:', currentLink);
+    console.log('New Link:', fetchedLink);
     if (fetchedLink !== currentLink || latestNumber !== currentNumber) {
       console.log('Link or Nibble number has changed. Updating files...');
       updateFiles(fetchedLink, latestNumber);
